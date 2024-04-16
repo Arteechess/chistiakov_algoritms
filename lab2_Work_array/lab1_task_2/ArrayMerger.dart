@@ -2,112 +2,96 @@ import 'dart:io';
 import 'dart:math';
 
 void main() {
-  stdout.write('Введите размер массива: ');
-  int size = int.parse(stdin.readLineSync()!);
-
-  DateTime startTime = DateTime.now();
-  List<dynamic> randomArray = generateRandomArray(size);
-  DateTime endTime = DateTime.now();
-
-  print('Сгенерированный массив: $randomArray');
-  print('Время на составление массива: ${endTime.difference(startTime).inMicroseconds} микросекунд.');
-
-  // Сортировка выбором
-  sortArraySelection(randomArray);
-  print('Отсортированный массив (Сортировка выбором): $randomArray');
-
-  // Сортировка слиянием
-  DateTime mergeSortStartTime = DateTime.now();
-  List<dynamic> mergeSortedArray = mergeSort(List.from(randomArray));
-  DateTime mergeSortEndTime = DateTime.now();
-
-  print('Отсортированный массив (Сортировка слиянием): $mergeSortedArray');
-  print('Время на сортировку слиянием: ${mergeSortEndTime.difference(mergeSortStartTime).inMicroseconds} микросекунд.');
+ stdout.write('Введите размер массива: ');
+ int size = int.parse(stdin.readLineSync()!);
+ 
+ DateTime startTime = DateTime.now();
+ List<dynamic> randomArray = generateRandomArray(size);
+ DateTime endTime = DateTime.now();
+ 
+ print('Сгенерированный массив: $randomArray');
+ print('Время на составление массива: ${endTime.difference(startTime).inMicroseconds} микросекунд.');
+ 
+ // Засекаем время перед сортировкой массива
+ startTime = DateTime.now();
+ mergeSort(randomArray, 0, randomArray.length - 1);
+ endTime = DateTime.now();
+ 
+ print('Отсортированный массив: $randomArray');
+ print('Время на сортировку массива методом сортировки слиянием: ${endTime.difference(startTime).inMicroseconds} микросекунд.');
 }
 
 List<dynamic> generateRandomArray(int size) {
-  Random random = Random();
-  List<dynamic> array = List.generate(size, (index) {
-    var randomType = random.nextInt(3);
-
-    switch (randomType) {
-      case 0:
-        return random.nextInt(100);
-      case 1:
-        return double.parse((random.nextDouble() * 100).toStringAsFixed(2));
-      case 2:
-        var randomAscii = random.nextInt(26) + 97;
-        return String.fromCharCode(randomAscii);
-    }
-  });
-
-  return array;
+ Random random = Random();
+ List<dynamic> array = List.generate(size, (index) {
+   var randomType = random.nextInt(3);
+   
+   switch (randomType) {
+     case 0:
+       return random.nextInt(100);
+     case 1:
+       return double.parse((random.nextDouble() * 100).toStringAsFixed(2));
+     case 2:
+       var randomAscii = random.nextInt(26) + 97;
+       return String.fromCharCode(randomAscii);
+   }
+ });
+ 
+ return array;
 }
 
-List<dynamic> sortArraySelection(List<dynamic> array) {
-  for (int i = 0; i < array.length - 1; i++) {
-    int minIndex = i;
-    for (int j = i + 1; j < array.length; j++) {
-      if (compareTo(array[j], array[minIndex]) < 0) {
-        minIndex = j;
-      }
-    }
-    if (minIndex != i) {
-      var temp = array[i];
-      array[i] = array[minIndex];
-      array[minIndex] = temp;
-    }
-  }
-  return array; // Возвращаем отсортированный массив
+void mergeSort(List<dynamic> array, int left, int right) {
+ if (left < right) {
+   int middle = (left + right) ~/ 2;
+   
+   mergeSort(array, left, middle);
+   mergeSort(array, middle + 1, right);
+   
+   merge(array, left, middle, right);
+ }
 }
 
-List<dynamic> merge(List<dynamic> left, List<dynamic> right) {
-  List<dynamic> merged = [];
-  int leftIndex = 0, rightIndex = 0;
-
-  while (leftIndex < left.length && rightIndex < right.length) {
-    if (compareTo(left[leftIndex], right[rightIndex]) <= 0) {
-      merged.add(left[leftIndex]);
-      leftIndex++;
-    } else {
-      merged.add(right[rightIndex]);
-      rightIndex++;
-    }
-  }
-
-  while (leftIndex < left.length) {
-    merged.add(left[leftIndex]);
-    leftIndex++;
-  }
-
-  while (rightIndex < right.length) {
-    merged.add(right[rightIndex]);
-    rightIndex++;
-  }
-
-  return merged;
-}
-
-List<dynamic> mergeSort(List<dynamic> array) {
-  if (array.length <= 1) {
-    return array;
-  }
-
-  int mid = array.length ~/ 2;
-  List<dynamic> left = mergeSort(array.sublist(0, mid));
-  List<dynamic> right = mergeSort(array.sublist(mid));
-
-  return merge(left, right);
+void merge(List<dynamic> array, int left, int middle, int right) {
+ int n1 = middle - left + 1;
+ int n2 = right - middle;
+ 
+ List<dynamic> leftArray = List<dynamic>.generate(n1, (index) => array[left + index]);
+ List<dynamic> rightArray = List<dynamic>.generate(n2, (index) => array[middle + 1 + index]);
+ 
+ int i = 0, j = 0, k = left;
+ 
+ while (i < n1 && j < n2) {
+   if (compareTo(leftArray[i], rightArray[j]) <= 0) {
+     array[k] = leftArray[i];
+     i++;
+   } else {
+     array[k] = rightArray[j];
+     j++;
+   }
+   k++;
+ }
+ 
+ while (i < n1) {
+   array[k] = leftArray[i];
+   i++;
+   k++;
+ }
+ 
+ while (j < n2) {
+   array[k] = rightArray[j];
+   j++;
+   k++;
+ }
 }
 
 int compareTo(dynamic a, dynamic b) {
-  if (a is int && b is int) {
-    return a.compareTo(b);
-  } else if (a is double && b is double) {
-    return a.compareTo(b);
-  } else if (a is String && b is String) {
-    return a.compareTo(b);
-  } else {
-    return a.toString().compareTo(b.toString());
-  }
+ if (a is int && b is int) {
+   return a.compareTo(b);
+ } else if (a is double && b is double) {
+   return a.compareTo(b);
+ } else if (a is String && b is String) {
+   return a.compareTo(b);
+ } else {
+   return a.toString().compareTo(b.toString());
+ }
 }

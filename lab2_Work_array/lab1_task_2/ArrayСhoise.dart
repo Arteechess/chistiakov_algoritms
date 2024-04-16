@@ -12,8 +12,13 @@ void main() {
   print('Сгенерированный массив: $randomArray');
   print('Время на составление массива: ${endTime.difference(startTime).inMicroseconds} микросекунд.');
 
+  // Засекаем время перед сортировкой массива
+  startTime = DateTime.now();
   sortArraySelection(randomArray);
+  endTime = DateTime.now();
+  
   print('Отсортированный массив: $randomArray');
+  print('Время на сортировку массива методом выбора: ${endTime.difference(startTime).inMicroseconds} микросекунд.');
 }
 
 List<dynamic> generateRandomArray(int size) {
@@ -35,7 +40,6 @@ List<dynamic> generateRandomArray(int size) {
   return array;
 }
 
-// Метод выбора
 List<dynamic> sortArraySelection(List<dynamic> array) {
   for (int i = 0; i < array.length - 1; i++) {
     int minIndex = i;
@@ -53,7 +57,6 @@ List<dynamic> sortArraySelection(List<dynamic> array) {
   return array; // Возвращаем отсортированный массив
 }
 
-
 int compareTo(dynamic a, dynamic b) {
   if (a is int && b is int) {
     return a.compareTo(b);
@@ -65,4 +68,3 @@ int compareTo(dynamic a, dynamic b) {
     return a.toString().compareTo(b.toString());
   }
 }
-
